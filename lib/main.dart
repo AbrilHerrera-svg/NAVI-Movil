@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:navi/screens/splash_screen.dart';
 import 'package:navi/screens/carrito/carrito_screen.dart';
+import 'package:navi/screens/auth/login_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -47,6 +48,7 @@ class NaviApp extends StatelessWidget {
       home: const SplashScreen(),
 
       routes: {
+        '/login': (context) => const LoginScreen(),
         '/carrito': (context) => const CarritoScreen(),
       },
     );
