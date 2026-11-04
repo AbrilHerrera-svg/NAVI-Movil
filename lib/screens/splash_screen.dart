@@ -94,7 +94,7 @@ class _SplashScreenState extends State<SplashScreen>
 
                   // Nombre de la app
                   const Text(
-                    'Navi',
+                    'NAVI',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 36,
@@ -106,7 +106,7 @@ class _SplashScreenState extends State<SplashScreen>
 
                   // Subtítulo
                   Text(
-                    'Tu cafete favorito',
+                    'Tu café favorito',
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.85),
                       fontSize: 15,
