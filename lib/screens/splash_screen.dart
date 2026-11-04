@@ -106,7 +106,7 @@ class _SplashScreenState extends State<SplashScreen>
 
                   // Subtítulo
                   Text(
-                    'Tu restaurante favorito',
+                    'Tu cafete favorito',
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.85),
                       fontSize: 15,
