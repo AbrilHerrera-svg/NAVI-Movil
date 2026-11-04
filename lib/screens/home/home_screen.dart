@@ -3,6 +3,7 @@ import 'package:navi/models/categoria.dart';
 import 'package:navi/models/producto.dart';
 import 'package:navi/widgets/categoria_item.dart';
 import 'package:navi/widgets/producto_card.dart';
+import 'package:navi/services/carrito_service.dart';
 import 'package:navi/screens/home/detalle_producto_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -114,7 +115,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: ProductoCard(
                       producto: prod,
                       onAgregar: () {
-                        // Agregar al carrito
+                        CarritoService().agregar(prod);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('${prod.nombre} agregado al carrito')),
+                        );
                       },
                     ),
                   );

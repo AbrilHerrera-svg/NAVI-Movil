@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:navi/screens/main_screen.dart';
+import 'package:navi/screens/splash_screen.dart';
 import 'package:navi/screens/carrito/carrito_screen.dart';
 
 void main() {
@@ -30,7 +30,7 @@ class NaviApp extends StatelessWidget {
           elevation: 0,
           centerTitle: true,
         ),
-        cardTheme: CardTheme(
+        cardTheme: CardThemeData(
           color: Colors.white,
           elevation: 1.5,
           shape: RoundedRectangleBorder(
@@ -38,13 +38,13 @@ class NaviApp extends StatelessWidget {
           ),
         ),
         navigationBarTheme: NavigationBarThemeData(
-          indicatorColor: const Color(0xFFFF5722).withOpacity(0.15),
+          indicatorColor: const Color(0xFFFF5722).withValues(alpha: 0.15),
           backgroundColor: Colors.white,
           elevation: 4,
         ),
       ),
 
-      home: const MainNavigationScreen(),
+      home: const SplashScreen(),
 
       routes: {
         '/carrito': (context) => const CarritoScreen(),

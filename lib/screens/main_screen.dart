@@ -3,10 +3,11 @@
 //camelCase nombreCompletoEstudiante
 import 'package:flutter/material.dart';
 import 'package:navi/screens/home/home_screen.dart';
-import 'package:navi/screens/carrito/carrito_screen.dart';
 import 'package:navi/screens/reservaciones/reservacion_screen.dart';
+import 'package:navi/screens/carrito/carrito_screen.dart';
 import 'package:navi/screens/perfil/perfil_screen.dart';
 import 'package:navi/services/carrito_service.dart';
+
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});

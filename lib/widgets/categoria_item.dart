@@ -27,7 +27,7 @@ class CategoriaItem extends StatelessWidget {
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: Theme.of(context).primaryColor.withOpacity(0.3),
+                    color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
                     blurRadius: 6,
                     offset: const Offset(0, 3),
                   ),
