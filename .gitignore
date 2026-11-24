@@ -43,3 +43,8 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Credenciales/keys de Firebase: no deben subirse al repo (ver .env.example)
+.env
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
