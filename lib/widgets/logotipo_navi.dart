@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 /// Logo + palabra "NAVI" tal como aparece en NAVI-web (Sidebar/LoginForm):
 /// el cohete sin fondo, en su color morado natural, junto a la palabra con
@@ -22,7 +23,7 @@ class LogotipoNavi extends StatelessWidget {
         const SizedBox(width: 8),
         Text.rich(
           TextSpan(
-            style: TextStyle(fontWeight: FontWeight.w900, fontSize: tamanoTexto, letterSpacing: -0.2),
+            style: GoogleFonts.montserrat(fontWeight: FontWeight.w900, fontSize: tamanoTexto, letterSpacing: 0.5),
             children: const [
               TextSpan(text: 'N', style: TextStyle(color: naviMorado)),
               TextSpan(text: 'A', style: TextStyle(color: naviCafe)),
