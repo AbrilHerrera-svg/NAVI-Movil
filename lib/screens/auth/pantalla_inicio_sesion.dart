@@ -51,8 +51,6 @@ class _PantallaInicioSesionState extends State<PantallaInicioSesion> {
     }
   }
 
-  void _continuarComoInvitado() => Navigator.pushReplacementNamed(context, '/home');
-
   void _irARegistro() =>
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const PantallaRegistro()));
 
@@ -152,10 +150,6 @@ class _PantallaInicioSesionState extends State<PantallaInicioSesion> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                TextButton(
-                  onPressed: _cargando ? null : _continuarComoInvitado,
-                  child: const Text('Continuar como invitado', style: TextStyle(color: Colors.black45)),
-                ),
                 EnlaceCambioAutenticacion(pregunta: '¿No tienes cuenta?', accion: 'Regístrate gratis', onTap: _irARegistro),
               ],
             ),
