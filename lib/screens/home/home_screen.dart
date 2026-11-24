@@ -92,9 +92,10 @@ class _HomeScreenState extends State<HomeScreen> {
         : _productos.where((p) => p.categoria == _categoriaSeleccionada).toList();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9F9),
+      backgroundColor: const Color(0xFFFAF8FF),
       appBar: AppBar(
         backgroundColor: Colors.white,
+        automaticallyImplyLeading: false,
         titleSpacing: 16,
         title: Row(
           children: [
