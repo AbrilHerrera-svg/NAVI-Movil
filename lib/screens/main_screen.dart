@@ -4,6 +4,7 @@ import 'package:navi/screens/pedidos/pantalla_pedidos.dart';
 import 'package:navi/screens/carrito/carrito_screen.dart';
 import 'package:navi/screens/perfil/perfil_screen.dart';
 import 'package:navi/services/carrito_service.dart';
+import 'package:navi/services/servicio_notificaciones.dart';
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key, this.indiceInicial = 0});
@@ -23,6 +24,23 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     PantallaPedidos(),
     PerfilScreen(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    ServicioNotificaciones().iniciar();
+    ServicioNotificaciones().alRecibirEnPrimerPlano((mensaje) {
+      final notificacion = mensaje.notification;
+      if (notificacion == null || !mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${notificacion.title ?? ''}\n${notificacion.body ?? ''}'.trim()),
+          duration: const Duration(seconds: 4),
+        ),
+      );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
