@@ -1,5 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:navi/services/api_service.dart';
+import 'package:navi/services/servicio_api.dart';
 
 /// Perfil de NAVI (Firestore) devuelto por el backend tras login/registro.
 class PerfilNavi {
@@ -18,9 +18,9 @@ class PerfilNavi {
       );
 }
 
-class AuthService {
+class ServicioAutenticacion {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final ApiService _api = ApiService();
+  final ServicioApi _api = ServicioApi();
 
   User? get usuarioActual => _auth.currentUser;
 
