@@ -31,4 +31,18 @@ class ServicioPedidos {
 
     return Pedido.fromJson(respuesta as Map<String, dynamic>);
   }
+
+  /// Pedidos del cliente que inició sesión (GET /api/orders/mine), filtrados
+  /// en el backend por su propio uid. El folio es secuencial ("#104"), así
+  /// que ordenar por su número da los más recientes primero sin depender
+  /// del orden de Firestore.
+  Future<List<Pedido>> misPedidos() async {
+    final respuesta = await _api.get('/api/orders/mine');
+    final lista = (respuesta as List).cast<Map<String, dynamic>>();
+    final pedidos = lista.map(Pedido.fromJson).toList();
+    pedidos.sort((a, b) => _numeroFolio(b.folio).compareTo(_numeroFolio(a.folio)));
+    return pedidos;
+  }
+
+  int _numeroFolio(String folio) => int.tryParse(folio.replaceAll('#', '')) ?? 0;
 }
