@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:navi/screens/carrito/checkout_screen.dart';
 import 'package:navi/services/carrito_service.dart';
+import 'package:navi/services/servicio_negocio.dart';
 import 'package:navi/widgets/barra_superior_navi.dart';
 import 'package:navi/widgets/boton_primario_navi.dart';
 import 'package:navi/widgets/estado_vacio_navi.dart';
@@ -18,9 +19,26 @@ class _CarritoScreenState extends State<CarritoScreen> {
   static const Color fondoSuave = Color(0xFFEEF0FB);
 
   // Nota: la hora de recolección es solo una preferencia local todavía; el
-  // backend no tiene un endpoint de horarios/sucursales, así que no se envía
-  // a ningún lado hasta que exista esa parte en NAVI-web.
+  // backend no tiene un endpoint de pedidos, así que no se envía a ningún
+  // lado hasta que exista esa parte en NAVI-web.
   bool _loAntesPosible = true;
+  String _nombreSucursal = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _cargarNegocio();
+  }
+
+  Future<void> _cargarNegocio() async {
+    try {
+      final negocio = await ServicioNegocio().obtenerNegocio();
+      if (!mounted) return;
+      setState(() => _nombreSucursal = negocio.nombre);
+    } catch (_) {
+      // Informativo; si falla simplemente no se muestra el nombre.
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +111,9 @@ class _CarritoScreenState extends State<CarritoScreen> {
                         const SizedBox(height: 10),
                         _OpcionHorario(
                           titulo: 'Lo antes posible',
-                          subtitulo: 'Listo en 6-9 min · Sucursal Roma Norte',
+                          subtitulo: _nombreSucursal.isEmpty
+                              ? 'Listo en 6-9 min'
+                              : 'Listo en 6-9 min · $_nombreSucursal',
                           icono: Icons.bolt,
                           seleccionado: _loAntesPosible,
                           onTap: () => setState(() => _loAntesPosible = true),
