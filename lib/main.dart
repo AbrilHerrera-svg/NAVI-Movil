@@ -4,7 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:navi/firebase_options.dart';
 import 'package:navi/screens/splash_screen.dart';
 import 'package:navi/screens/carrito/carrito_screen.dart';
-import 'package:navi/screens/auth/login_screen.dart';
+import 'package:navi/screens/auth/pantalla_inicio_sesion.dart';
 import 'package:navi/screens/main_screen.dart';
 
 void main() async {
@@ -54,7 +54,7 @@ class NaviApp extends StatelessWidget {
       home: const SplashScreen(),
 
       routes: {
-        '/login': (context) => const LoginScreen(),
+        '/login': (context) => const PantallaInicioSesion(),
         '/home': (context) => const MainNavigationScreen(),
         '/carrito': (context) => const CarritoScreen(),
       },
