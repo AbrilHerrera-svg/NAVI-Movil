@@ -1,10 +1,14 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:navi/firebase_options.dart';
 import 'package:navi/screens/splash_screen.dart';
 import 'package:navi/screens/carrito/carrito_screen.dart';
 import 'package:navi/screens/auth/login_screen.dart';
+import 'package:navi/screens/main_screen.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const NaviApp());
 }
 
@@ -49,6 +53,7 @@ class NaviApp extends StatelessWidget {
 
       routes: {
         '/login': (context) => const LoginScreen(),
+        '/home': (context) => const MainNavigationScreen(),
         '/carrito': (context) => const CarritoScreen(),
       },
     );

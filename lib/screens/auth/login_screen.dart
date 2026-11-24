@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:navi/services/auth_service.dart';
+import 'package:navi/widgets/navi_wordmark.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -11,8 +13,26 @@ class _LoginScreenState extends State<LoginScreen> {
   static const Color naviMorado = Color(0xFF5960A1);
   static const Color naviCafe = Color(0xFFAC8572);
 
+  final AuthService _authService = AuthService();
+
+  final _nombreController = TextEditingController();
+  final _correoController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _telefonoController = TextEditingController();
+
   bool _esRegistro = false;
   bool _ocultar = true;
+  bool _cargando = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    _nombreController.dispose();
+    _correoController.dispose();
+    _passwordController.dispose();
+    _telefonoController.dispose();
+    super.dispose();
+  }
 
   Widget _etiqueta(String texto) => Padding(
         padding: const EdgeInsets.only(top: 18, bottom: 8),
@@ -25,7 +45,37 @@ class _LoginScreenState extends State<LoginScreen> {
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
       );
 
-  void _entrar() => Navigator.pushReplacementNamed(context, '/home');
+  Future<void> _entrar() async {
+    setState(() {
+      _cargando = true;
+      _error = null;
+    });
+
+    try {
+      if (_esRegistro) {
+        await _authService.registrar(
+          nombre: _nombreController.text.trim(),
+          email: _correoController.text.trim(),
+          password: _passwordController.text,
+          telefono: _telefonoController.text.trim(),
+        );
+      } else {
+        await _authService.iniciarSesion(
+          email: _correoController.text.trim(),
+          password: _passwordController.text,
+        );
+      }
+
+      if (!mounted) return;
+      Navigator.pushReplacementNamed(context, '/home');
+    } catch (error) {
+      setState(() => _error = error.toString().replaceFirst('Exception: ', ''));
+    } finally {
+      if (mounted) setState(() => _cargando = false);
+    }
+  }
+
+  void _entrarComoInvitado() => Navigator.pushReplacementNamed(context, '/home');
 
   @override
   Widget build(BuildContext context) {
@@ -39,23 +89,11 @@ class _LoginScreenState extends State<LoginScreen> {
             child: ListView(
               padding: const EdgeInsets.all(20),
               children: [
-                const ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: CircleAvatar(
-                    backgroundColor: naviMorado,
-                    child: Icon(Icons.rocket_launch_outlined, color: Colors.white),
-                  ),
-                  title: Text.rich(
-                    TextSpan(
-                      style: TextStyle(fontWeight: FontWeight.w900, color: naviMorado),
-                      children: [
-                        TextSpan(text: 'N'),
-                        TextSpan(text: 'A', style: TextStyle(color: naviCafe)),
-                        TextSpan(text: 'VI'),
-                      ],
-                    ),
-                  ),
-                  subtitle: Text('Pide y reserva desde tu celular'),
+                const NaviWordmark(),
+                const SizedBox(height: 8),
+                const Text(
+                  'Pide y reserva desde tu celular',
+                  style: TextStyle(color: Colors.black54, fontSize: 13),
                 ),
                 const Divider(height: 32),
                 SegmentedButton<bool>(
@@ -65,7 +103,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   ],
                   selected: {_esRegistro},
                   showSelectedIcon: false,
-                  onSelectionChanged: (valor) => setState(() => _esRegistro = valor.first),
+                  onSelectionChanged: (valor) => setState(() {
+                    _esRegistro = valor.first;
+                    _error = null;
+                  }),
                   style: SegmentedButton.styleFrom(
                     selectedBackgroundColor: naviMorado,
                     selectedForegroundColor: Colors.white,
@@ -73,15 +114,26 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 if (_esRegistro) ...[
                   _etiqueta('NOMBRE'),
-                  TextField(decoration: _decoracion('Tu nombre', const Icon(Icons.person_outline))),
+                  TextField(
+                    controller: _nombreController,
+                    decoration: _decoracion('Tu nombre', const Icon(Icons.person_outline)),
+                  ),
+                  _etiqueta('TELÉFONO (OPCIONAL)'),
+                  TextField(
+                    controller: _telefonoController,
+                    keyboardType: TextInputType.phone,
+                    decoration: _decoracion('10 dígitos', const Icon(Icons.phone_outlined)),
+                  ),
                 ],
                 _etiqueta('CORREO ELECTRÓNICO'),
                 TextField(
+                  controller: _correoController,
                   keyboardType: TextInputType.emailAddress,
                   decoration: _decoracion('tucorreo@ejemplo.com', const Icon(Icons.mail_outline)),
                 ),
                 _etiqueta('CONTRASEÑA'),
                 TextField(
+                  controller: _passwordController,
                   obscureText: _ocultar,
                   decoration: _decoracion(
                     'Tu contraseña',
@@ -102,19 +154,30 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
+                if (_error != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12),
+                    child: Text(_error!, style: const TextStyle(color: Colors.red)),
+                  ),
                 const SizedBox(height: 20),
                 FilledButton(
-                  onPressed: _entrar,
+                  onPressed: _cargando ? null : _entrar,
                   style: FilledButton.styleFrom(
                     backgroundColor: naviMorado,
                     padding: const EdgeInsets.all(18),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: Text(_esRegistro ? 'Crear cuenta' : 'Entrar'),
+                  child: _cargando
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                        )
+                      : Text(_esRegistro ? 'Crear cuenta' : 'Entrar'),
                 ),
                 const SizedBox(height: 12),
                 OutlinedButton(
-                  onPressed: _entrar,
+                  onPressed: _cargando ? null : _entrarComoInvitado,
                   style: OutlinedButton.styleFrom(
                     foregroundColor: naviCafe,
                     padding: const EdgeInsets.all(18),
