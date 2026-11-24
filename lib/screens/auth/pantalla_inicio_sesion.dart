@@ -25,6 +25,7 @@ class _PantallaInicioSesionState extends State<PantallaInicioSesion> {
 
   bool _ocultar = true;
   bool _cargando = false;
+  bool _cargandoGoogle = false;
   String? _error;
 
   @override
@@ -48,6 +49,23 @@ class _PantallaInicioSesionState extends State<PantallaInicioSesion> {
       setState(() => _error = error.toString().replaceFirst('Exception: ', ''));
     } finally {
       if (mounted) setState(() => _cargando = false);
+    }
+  }
+
+  Future<void> _iniciarSesionConGoogle() async {
+    setState(() {
+      _cargandoGoogle = true;
+      _error = null;
+    });
+
+    try {
+      await _servicioAuth.iniciarSesionConGoogle();
+      if (!mounted) return;
+      Navigator.pushReplacementNamed(context, '/home');
+    } catch (error) {
+      setState(() => _error = error.toString().replaceFirst('Exception: ', ''));
+    } finally {
+      if (mounted) setState(() => _cargandoGoogle = false);
     }
   }
 
@@ -126,10 +144,10 @@ class _PantallaInicioSesionState extends State<PantallaInicioSesion> {
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton.icon(
-                    onPressed: _cargando
-                        ? null
-                        : () => setState(() => _error = 'Inicio de sesión con Google próximamente'),
-                    icon: const Icon(Icons.g_mobiledata, size: 28, color: Colors.red),
+                    onPressed: _cargando || _cargandoGoogle ? null : _iniciarSesionConGoogle,
+                    icon: _cargandoGoogle
+                        ? const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                        : const Icon(Icons.g_mobiledata, size: 28, color: Colors.red),
                     label: const Text('Google', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.black87)),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.all(14),

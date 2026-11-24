@@ -1,4 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:navi/services/servicio_api.dart';
 
 /// Perfil de NAVI (Firestore) devuelto por el backend tras login/registro.
@@ -70,6 +72,49 @@ class ServicioAutenticacion {
       }
     } on FirebaseAuthException catch (error) {
       throw Exception(_mensajeDeError(error.code));
+    }
+  }
+
+  bool _googleInicializado = false;
+
+  /// Inicia sesión con Google: en Web abre el popup oficial de Google
+  /// (nuestro propio botón morado solo lo dispara); en Android/iOS usa el
+  /// SDK nativo de Google Sign-In. En ambos casos, igual que con correo y
+  /// contraseña, si la cuenta no tiene perfil en Firestore se crea aquí.
+  Future<PerfilNavi> iniciarSesionConGoogle() async {
+    try {
+      final UserCredential credencial;
+
+      if (kIsWeb) {
+        credencial = await _auth.signInWithPopup(GoogleAuthProvider());
+      } else {
+        if (!_googleInicializado) {
+          await GoogleSignIn.instance.initialize();
+          _googleInicializado = true;
+        }
+
+        final cuenta = await GoogleSignIn.instance.authenticate();
+        final idToken = cuenta.authentication.idToken;
+        credencial = await _auth.signInWithCredential(GoogleAuthProvider.credential(idToken: idToken));
+      }
+
+      try {
+        final respuesta = await _api.get('/api/auth/me');
+        return PerfilNavi.fromJson(respuesta['perfil']);
+      } on ExcepcionApi catch (error) {
+        if (error.statusCode != 404) rethrow;
+
+        final nombre = credencial.user?.displayName ?? credencial.user?.email?.split('@').first ?? 'Cliente';
+        final respuesta = await _api.post('/api/auth/register', {'name': nombre});
+        return PerfilNavi.fromJson(respuesta['perfil']);
+      }
+    } on FirebaseAuthException catch (error) {
+      throw Exception(_mensajeDeError(error.code));
+    } on GoogleSignInException catch (error) {
+      if (error.code == GoogleSignInExceptionCode.canceled) {
+        throw Exception('Inicio de sesión cancelado');
+      }
+      throw Exception('No se pudo iniciar sesión con Google');
     }
   }
 
