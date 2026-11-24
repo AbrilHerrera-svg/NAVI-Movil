@@ -49,11 +49,25 @@ class ServicioAutenticacion {
   }
 
   /// Inicia sesión con Firebase Auth y obtiene el perfil desde el backend.
+  ///
+  /// Si la cuenta de Firebase Auth existe pero no tiene perfil en Firestore
+  /// (por ejemplo, porque el registro se interrumpió a medias la primera
+  /// vez), se crea el perfil automáticamente en vez de dejar la cuenta
+  /// atorada en ese estado.
   Future<PerfilNavi> iniciarSesion({required String email, required String password}) async {
     try {
-      await _auth.signInWithEmailAndPassword(email: email, password: password);
-      final respuesta = await _api.get('/api/auth/me');
-      return PerfilNavi.fromJson(respuesta['perfil']);
+      final credencial = await _auth.signInWithEmailAndPassword(email: email, password: password);
+
+      try {
+        final respuesta = await _api.get('/api/auth/me');
+        return PerfilNavi.fromJson(respuesta['perfil']);
+      } on ExcepcionApi catch (error) {
+        if (error.statusCode != 404) rethrow;
+
+        final nombre = credencial.user?.displayName ?? email.split('@').first;
+        final respuesta = await _api.post('/api/auth/register', {'name': nombre});
+        return PerfilNavi.fromJson(respuesta['perfil']);
+      }
     } on FirebaseAuthException catch (error) {
       throw Exception(_mensajeDeError(error.code));
     }
