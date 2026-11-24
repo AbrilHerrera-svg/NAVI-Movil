@@ -75,6 +75,33 @@ class ServicioAutenticacion {
 
   Future<void> cerrarSesion() => _auth.signOut();
 
+  Future<PerfilNavi> obtenerPerfil() async {
+    final respuesta = await _api.get('/api/auth/me');
+    return PerfilNavi.fromJson(respuesta['perfil']);
+  }
+
+  /// Edita nombre/teléfono en Firestore (PUT /api/auth/me); solo sobre la
+  /// propia cuenta, nunca sobre otro uid.
+  Future<PerfilNavi> actualizarPerfil({String? nombre, String? telefono}) async {
+    final cuerpo = <String, dynamic>{
+      if (nombre != null && nombre.isNotEmpty) 'name': nombre,
+      if (telefono != null && telefono.isNotEmpty) 'phone': telefono,
+    };
+
+    final respuesta = await _api.put('/api/auth/me', cuerpo);
+    final perfil = PerfilNavi.fromJson(respuesta['perfil']);
+
+    if (nombre != null && nombre.isNotEmpty) {
+      await _auth.currentUser?.updateDisplayName(nombre);
+    }
+
+    return perfil;
+  }
+
+  /// Manda el correo de restablecimiento de contraseña de Firebase; nunca
+  /// manejamos la contraseña actual/nueva nosotros mismos.
+  Future<void> enviarCorreoDeRecuperacion(String email) => _auth.sendPasswordResetEmail(email: email);
+
   String _mensajeDeError(String codigo) {
     switch (codigo) {
       case 'email-already-in-use':

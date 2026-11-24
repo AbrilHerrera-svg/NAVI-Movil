@@ -46,6 +46,15 @@ class ServicioApi {
     return _procesar(respuesta);
   }
 
+  Future<dynamic> put(String ruta, Map<String, dynamic> cuerpo) async {
+    final respuesta = await http.put(
+      Uri.parse('${ConfiguracionApi.urlBase}$ruta'),
+      headers: await _encabezados(),
+      body: jsonEncode(cuerpo),
+    );
+    return _procesar(respuesta);
+  }
+
   dynamic _procesar(http.Response respuesta) {
     final datos = respuesta.body.isEmpty ? {} : jsonDecode(respuesta.body);
 
