@@ -5,6 +5,16 @@ class Producto {
   final double precio;
   final IconData icono;
   final String categoria;
-  const Producto(this.nombre,this.precio,this.icono,this.categoria);
-  }
+  final String descripcion;
+  final String etiqueta;
+
+  const Producto(
+    this.nombre,
+    this.precio,
+    this.icono,
+    this.categoria, {
+    this.descripcion = '',
+    this.etiqueta = '',
+  });
+}
 
