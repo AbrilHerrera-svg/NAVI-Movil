@@ -53,7 +53,7 @@ class WelcomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               const Text(
-                'NAVI CAFÉ',
+                'NAVI',
                 style: TextStyle(
                   color: primaryColor,
                   fontSize: 28,
@@ -63,7 +63,7 @@ class WelcomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                'Café de especialidad tostado en casa, pedidos al instante y sin esperas.',
+                'Tú café sin esperas.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.grey[600],
