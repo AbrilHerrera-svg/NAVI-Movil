@@ -7,6 +7,7 @@ import 'package:navi/screens/home/detalle_producto_screen.dart';
 import 'package:navi/screens/perfil/perfil_screen.dart';
 import 'package:navi/services/carrito_service.dart';
 import 'package:navi/services/servicio_menu.dart';
+import 'package:navi/services/servicio_negocio.dart';
 import 'package:navi/widgets/barra_superior_navi.dart';
 import 'package:navi/widgets/categoria_item.dart';
 import 'package:navi/widgets/estado_vacio_navi.dart';
@@ -24,17 +25,30 @@ class _HomeScreenState extends State<HomeScreen> {
   static const Color fondoSuave = Color(0xFFEEF0FB);
 
   final ServicioMenu _servicioMenu = ServicioMenu();
+  final ServicioNegocio _servicioNegocio = ServicioNegocio();
   final _busquedaController = TextEditingController();
 
   String _categoriaSeleccionada = 'Todos';
   bool _cargando = true;
   String? _error;
   List<Producto> _productos = [];
+  String _nombreSucursal = '';
 
   @override
   void initState() {
     super.initState();
     _cargarMenu();
+    _cargarNegocio();
+  }
+
+  Future<void> _cargarNegocio() async {
+    try {
+      final negocio = await _servicioNegocio.obtenerNegocio();
+      if (!mounted) return;
+      setState(() => _nombreSucursal = negocio.nombre);
+    } catch (_) {
+      // La ubicación es informativa; si falla, simplemente no se muestra.
+    }
   }
 
   @override
@@ -202,15 +216,16 @@ class _HomeScreenState extends State<HomeScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('$_saludo, $_nombreUsuario 👋', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            const Icon(Icons.location_on_outlined, size: 14, color: naviMorado),
-                            const SizedBox(width: 4),
-                            const Text('Sucursal Roma Norte', style: TextStyle(fontSize: 13, color: naviMorado)),
-                            const Icon(Icons.keyboard_arrow_down, size: 16, color: naviMorado),
-                          ],
-                        ),
+                        if (_nombreSucursal.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              const Icon(Icons.location_on_outlined, size: 14, color: naviMorado),
+                              const SizedBox(width: 4),
+                              Text(_nombreSucursal, style: const TextStyle(fontSize: 13, color: naviMorado)),
+                            ],
+                          ),
+                        ],
                       ],
                     ),
                   ),
@@ -309,7 +324,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     ),
-                    const Text('Roma Norte', style: TextStyle(fontSize: 12, color: Colors.black54)),
+                    if (_nombreSucursal.isNotEmpty)
+                      Text(_nombreSucursal, style: const TextStyle(fontSize: 12, color: Colors.black54)),
                   ],
                 ),
               ),
