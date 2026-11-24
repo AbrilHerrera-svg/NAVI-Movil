@@ -5,6 +5,7 @@ import 'package:navi/models/pedido.dart';
 import 'package:navi/services/servicio_pedidos.dart';
 import 'package:navi/widgets/barra_superior_navi.dart';
 import 'package:navi/widgets/estado_vacio_navi.dart';
+import 'package:navi/widgets/tarjeta_pedido_navi.dart';
 
 /// Mockup 9: seguimiento de pedidos reales del cliente (GET
 /// /api/orders/mine), con línea de tiempo por estado. Se actualiza sola
@@ -107,115 +108,8 @@ class _PantallaPedidosState extends State<PantallaPedidos> {
         padding: const EdgeInsets.all(16),
         itemCount: _pedidos.length,
         separatorBuilder: (context, index) => const SizedBox(height: 12),
-        itemBuilder: (context, index) => _TarjetaPedido(pedido: _pedidos[index]),
+        itemBuilder: (context, index) => TarjetaPedidoNavi(pedido: _pedidos[index]),
       ),
-    );
-  }
-}
-
-class _TarjetaPedido extends StatelessWidget {
-  const _TarjetaPedido({required this.pedido});
-
-  static const Color naviMorado = Color(0xFF5960A1);
-
-  final Pedido pedido;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                pedido.folio.isEmpty ? 'Pedido' : 'Pedido ${pedido.folio}',
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
-              Text(
-                '\$${pedido.total.toStringAsFixed(2)}',
-                style: const TextStyle(fontWeight: FontWeight.bold, color: naviMorado),
-              ),
-            ],
-          ),
-          if (pedido.resumenProductos.isNotEmpty) ...[
-            const SizedBox(height: 4),
-            Text(
-              pedido.resumenProductos,
-              style: const TextStyle(fontSize: 13, color: Colors.black54),
-            ),
-          ],
-          const SizedBox(height: 16),
-          _LineaDeTiempo(estado: pedido.estado),
-        ],
-      ),
-    );
-  }
-}
-
-class _LineaDeTiempo extends StatelessWidget {
-  const _LineaDeTiempo({required this.estado});
-
-  static const Color naviMorado = Color(0xFF5960A1);
-  static const List<String> _pasos = ['Nuevo', 'En preparación', 'Listo', 'Recogido'];
-
-  final String estado;
-
-  @override
-  Widget build(BuildContext context) {
-    if (estado == 'Cancelado') {
-      return const Row(
-        children: [
-          Icon(Icons.cancel_outlined, color: Colors.redAccent, size: 18),
-          SizedBox(width: 8),
-          Text('Pedido cancelado', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
-        ],
-      );
-    }
-
-    final indiceActual = _pasos.indexOf(estado);
-
-    return Row(
-      children: [
-        for (var i = 0; i < _pasos.length; i++) ...[
-          if (i > 0)
-            Expanded(
-              child: Container(
-                height: 2,
-                color: i <= indiceActual ? naviMorado : const Color(0xFFE2E8F0),
-              ),
-            ),
-          Column(
-            children: [
-              Container(
-                width: 12,
-                height: 12,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: i <= indiceActual ? naviMorado : const Color(0xFFE2E8F0),
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                _pasos[i],
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: i == indiceActual ? FontWeight.bold : FontWeight.normal,
-                  color: i <= indiceActual ? naviMorado : Colors.black45,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ],
     );
   }
 }
