@@ -4,6 +4,18 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'package:navi/services/configuracion_api.dart';
 
+/// Error de una llamada al backend; conserva el código HTTP para que quien
+/// llama pueda reaccionar distinto según el caso (ej. 404 = no existe).
+class ExcepcionApi implements Exception {
+  final int statusCode;
+  final String mensaje;
+
+  ExcepcionApi(this.statusCode, this.mensaje);
+
+  @override
+  String toString() => mensaje;
+}
+
 /// Llama al backend de NAVI-web adjuntando el idToken de Firebase Auth del
 /// usuario que inició sesión en la app.
 class ServicioApi {
@@ -38,7 +50,7 @@ class ServicioApi {
     final datos = respuesta.body.isEmpty ? {} : jsonDecode(respuesta.body);
 
     if (respuesta.statusCode >= 400) {
-      throw Exception(datos['mensaje'] ?? 'Error del servidor');
+      throw ExcepcionApi(respuesta.statusCode, datos['mensaje'] ?? 'Error del servidor');
     }
 
     return datos;
