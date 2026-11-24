@@ -3,6 +3,7 @@ import 'package:navi/models/producto.dart';
 import 'package:navi/services/carrito_service.dart';
 import 'package:navi/widgets/boton_primario_navi.dart';
 import 'package:navi/widgets/insignia_navi.dart';
+import 'package:navi/widgets/selector_cantidad_navi.dart';
 
 class DetalleProductoScreen extends StatefulWidget {
   final Producto producto;
@@ -100,28 +101,10 @@ class _DetalleProductoScreenState extends State<DetalleProductoScreen> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 const Text('Cantidad', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
-                                Container(
-                                  decoration: BoxDecoration(color: fondoSuave, borderRadius: BorderRadius.circular(12)),
-                                  child: Row(
-                                    children: [
-                                      IconButton(
-                                        onPressed: () => _cambiarCantidad(-1),
-                                        icon: const Icon(Icons.remove, color: naviMorado, size: 18),
-                                      ),
-                                      SizedBox(
-                                        width: 24,
-                                        child: Text(
-                                          '$_cantidad',
-                                          textAlign: TextAlign.center,
-                                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                                        ),
-                                      ),
-                                      IconButton(
-                                        onPressed: () => _cambiarCantidad(1),
-                                        icon: const Icon(Icons.add, color: naviMorado, size: 18),
-                                      ),
-                                    ],
-                                  ),
+                                SelectorCantidadNavi(
+                                  cantidad: _cantidad,
+                                  onDecrementar: () => _cambiarCantidad(-1),
+                                  onIncrementar: () => _cambiarCantidad(1),
                                 ),
                               ],
                             ),
