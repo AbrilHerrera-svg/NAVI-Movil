@@ -1,13 +1,9 @@
-//snake case. Productos_Nuevos_
-//Pascal Case.  Main.  ProductosNuevos
-//camelCase nombreCompletoEstudiante
 import 'package:flutter/material.dart';
 import 'package:navi/screens/home/home_screen.dart';
-import 'package:navi/screens/reservaciones/reservacion_screen.dart';
+import 'package:navi/screens/pedidos/pantalla_pedidos.dart';
 import 'package:navi/screens/carrito/carrito_screen.dart';
 import 'package:navi/screens/perfil/perfil_screen.dart';
 import 'package:navi/services/carrito_service.dart';
-
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
@@ -21,8 +17,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   final List<Widget> _pantallas = const [
     HomeScreen(),
-    ReservacionScreen(),
     CarritoScreen(),
+    PantallaPedidos(),
     PerfilScreen(),
   ];
 
@@ -47,14 +43,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             },
             destinations: [
               const NavigationDestination(
-                icon: Icon(Icons.restaurant_menu_outlined),
-                selectedIcon: Icon(Icons.restaurant_menu),
+                icon: Icon(Icons.coffee_outlined),
+                selectedIcon: Icon(Icons.coffee),
                 label: 'Menú',
-              ),
-              const NavigationDestination(
-                icon: Icon(Icons.calendar_today_outlined),
-                selectedIcon: Icon(Icons.calendar_today),
-                label: 'Reservas',
               ),
               NavigationDestination(
                 icon: Badge(
@@ -67,7 +58,12 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                   label: Text('$totalCarrito'),
                   child: const Icon(Icons.shopping_bag),
                 ),
-                label: 'Pedido',
+                label: 'Carrito',
+              ),
+              const NavigationDestination(
+                icon: Icon(Icons.receipt_long_outlined),
+                selectedIcon: Icon(Icons.receipt_long),
+                label: 'Pedidos',
               ),
               const NavigationDestination(
                 icon: Icon(Icons.person_outline),
