@@ -38,6 +38,7 @@ dependencies:
   firebase_auth: ^7.1.0
   http: ^1.6.0
   google_sign_in: ^7.2.0
+  flutter_dotenv: ^6.0.2
 
 dev_dependencies:
   flutter_test:
@@ -63,6 +64,7 @@ flutter:
 
   assets:
     - assets/images/navi-cohete.svg
+    - .env
 
   # To add assets to your application, add an assets section, like this:
   # assets:
