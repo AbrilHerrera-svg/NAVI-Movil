@@ -1,14 +1,31 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:navi/screens/carrito/confirmacion_pedido_screen.dart';
 import 'package:navi/services/carrito_service.dart';
+import 'package:navi/services/servicio_negocio.dart';
+import 'package:navi/services/servicio_pedidos.dart';
 import 'package:navi/widgets/barra_superior_navi.dart';
 import 'package:navi/widgets/boton_primario_navi.dart';
 import 'package:navi/widgets/opcion_seleccionable_navi.dart';
 
 enum _MetodoPago { tarjeta, efectivo, transferencia }
 
+extension on _MetodoPago {
+  String get nombreBackend {
+    switch (this) {
+      case _MetodoPago.tarjeta:
+        return 'Terminal de tarjeta';
+      case _MetodoPago.efectivo:
+        return 'Efectivo';
+      case _MetodoPago.transferencia:
+        return 'Transferencia';
+    }
+  }
+}
+
 /// Mockup 7: solo pago en sucursal al recoger el pedido (no hay cobro en
-/// línea todavía). Elegir método es local; cuando exista un endpoint de
-/// pedidos en NAVI-web, esto se enviará junto con el pedido.
+/// línea). Al confirmar se crea el pedido de verdad en NAVI-web
+/// (POST /api/orders, origin "App"), igual que los pedidos de mostrador.
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
 
@@ -19,22 +36,38 @@ class CheckoutScreen extends StatefulWidget {
 class _CheckoutScreenState extends State<CheckoutScreen> {
   static const Color naviMorado = Color(0xFF5960A1);
 
+  final ServicioPedidos _servicioPedidos = ServicioPedidos();
+
   _MetodoPago _metodo = _MetodoPago.tarjeta;
   bool _confirmando = false;
 
   Future<void> _confirmarPedido() async {
+    final carrito = CarritoService();
     setState(() => _confirmando = true);
 
-    // TODO: cuando exista POST /api/orders en NAVI-web, mandar aquí el
-    // carrito + horario + método de pago en vez de solo limpiar localmente.
-    await Future.delayed(const Duration(milliseconds: 600));
-    if (!mounted) return;
+    try {
+      final pedido = await _servicioPedidos.crearPedido(
+        items: carrito.items,
+        total: carrito.totalPrecio,
+        metodoPago: _metodo.nombreBackend,
+        nombreCliente: FirebaseAuth.instance.currentUser?.displayName,
+      );
+      final negocio = await ServicioNegocio().obtenerNegocio();
+      if (!mounted) return;
 
-    CarritoService().limpiar();
-    Navigator.popUntil(context, (route) => route.isFirst);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Pedido confirmado con éxito')),
-    );
+      carrito.limpiar();
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => ConfirmacionPedidoScreen(pedido: pedido, nombreSucursal: negocio.nombre),
+        ),
+      );
+    } catch (error) {
+      if (!mounted) return;
+      setState(() => _confirmando = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('No se pudo crear el pedido: $error'.replaceFirst('Exception: ', ''))),
+      );
+    }
   }
 
   @override
