@@ -7,8 +7,9 @@ import 'package:navi/screens/home/detalle_producto_screen.dart';
 import 'package:navi/screens/perfil/perfil_screen.dart';
 import 'package:navi/services/carrito_service.dart';
 import 'package:navi/services/servicio_menu.dart';
+import 'package:navi/widgets/barra_superior_navi.dart';
 import 'package:navi/widgets/categoria_item.dart';
-import 'package:navi/widgets/logotipo_navi.dart';
+import 'package:navi/widgets/estado_vacio_navi.dart';
 import 'package:navi/widgets/tarjeta_producto_menu.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -93,17 +94,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFFAF8FF),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        automaticallyImplyLeading: false,
-        titleSpacing: 16,
-        title: Row(
-          children: [
-            const LogotipoNavi(tamanoIcono: 28, tamanoTexto: 18),
-            const SizedBox(width: 8),
-            const Text('| Menú', style: TextStyle(fontSize: 14, color: Colors.black45)),
-          ],
-        ),
+      appBar: BarraSuperiorNavi(
+        seccion: 'Menú',
         actions: [
           IconButton(
             onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PerfilScreen())),
@@ -186,26 +178,13 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     if (_error != null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.wifi_off, size: 40, color: Colors.black38),
-              const SizedBox(height: 12),
-              Text(
-                _error!.contains('No autorizado') || _error!.contains('Token')
-                    ? 'Inicia sesión para ver el menú'
-                    : 'No se pudo cargar el menú: $_error',
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.black54),
-              ),
-              const SizedBox(height: 16),
-              OutlinedButton(onPressed: _cargarMenu, child: const Text('Reintentar')),
-            ],
-          ),
-        ),
+      return EstadoVacioNavi(
+        icono: Icons.wifi_off,
+        titulo: _error!.contains('No autorizado') || _error!.contains('Token')
+            ? 'Inicia sesión para ver el menú'
+            : 'No se pudo cargar el menú',
+        subtitulo: _error,
+        accion: OutlinedButton(onPressed: _cargarMenu, child: const Text('Reintentar')),
       );
     }
 
