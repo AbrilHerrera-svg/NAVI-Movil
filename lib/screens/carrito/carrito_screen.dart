@@ -1,94 +1,215 @@
 import 'package:flutter/material.dart';
 import 'package:navi/screens/carrito/checkout_screen.dart';
 import 'package:navi/services/carrito_service.dart';
+import 'package:navi/widgets/barra_superior_navi.dart';
+import 'package:navi/widgets/boton_primario_navi.dart';
+import 'package:navi/widgets/estado_vacio_navi.dart';
+import 'package:navi/widgets/selector_cantidad_navi.dart';
 
-class CarritoScreen extends StatelessWidget {
+class CarritoScreen extends StatefulWidget {
   const CarritoScreen({super.key});
+
+  @override
+  State<CarritoScreen> createState() => _CarritoScreenState();
+}
+
+class _CarritoScreenState extends State<CarritoScreen> {
+  static const Color naviMorado = Color(0xFF5960A1);
+  static const Color fondoSuave = Color(0xFFEEF0FB);
+
+  // Nota: la hora de recolección es solo una preferencia local todavía; el
+  // backend no tiene un endpoint de horarios/sucursales, así que no se envía
+  // a ningún lado hasta que exista esa parte en NAVI-web.
+  bool _loAntesPosible = true;
 
   @override
   Widget build(BuildContext context) {
     final carrito = CarritoService();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Mi Pedido')),
+      backgroundColor: const Color(0xFFFAF8FF),
+      appBar: const BarraSuperiorNavi(seccion: 'Carrito'),
       body: ListenableBuilder(
         listenable: carrito,
         builder: (context, _) {
           if (carrito.items.isEmpty) {
-            return const Center(
-              child: Text(
-                'Tu carrito está vacío',
-                style: TextStyle(fontSize: 16, color: Colors.grey),
-              ),
+            return const EstadoVacioNavi(
+              icono: Icons.shopping_bag_outlined,
+              titulo: 'Tu carrito está vacío',
+              subtitulo: 'Agrega productos del menú para armar tu pedido.',
             );
           }
 
-          return Column(
-            children: [
-              Expanded(
-                child: ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: carrito.items.length,
-                  itemBuilder: (context, index) {
-                    final item = carrito.items[index];
-                    return Card(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      child: ListTile(
-                        leading: Icon(item.producto.icono, size: 36),
-                        title: Text(item.producto.nombre),
-                        subtitle: Text('\$${item.producto.precio.toStringAsFixed(2)} c/u'),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.remove_circle_outline),
-                              onPressed: () => carrito.quitar(item.producto),
-                            ),
-                            Text('${item.cantidad}', style: const TextStyle(fontWeight: FontWeight.bold)),
-                            IconButton(
-                              icon: const Icon(Icons.add_circle_outline),
-                              onPressed: () => carrito.agregar(item.producto),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          return Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 480),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: ListView(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                       children: [
-                        const Text('Total', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                        Text(
-                          '\$${carrito.totalPrecio.toStringAsFixed(2)}',
-                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        for (final item in carrito.items)
+                          Container(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: const Color(0xFFE2E8F0)),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 56,
+                                  height: 56,
+                                  decoration: BoxDecoration(color: fondoSuave, borderRadius: BorderRadius.circular(10)),
+                                  child: Icon(item.producto.icono, color: naviMorado, size: 26),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(item.producto.nombre, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        '\$${item.producto.precio.toStringAsFixed(2)} c/u',
+                                        style: const TextStyle(fontSize: 12, color: Colors.black54),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                SelectorCantidadNavi(
+                                  cantidad: item.cantidad,
+                                  onDecrementar: () => carrito.quitar(item.producto),
+                                  onIncrementar: () => carrito.agregar(item.producto),
+                                ),
+                              ],
+                            ),
+                          ),
+                        const SizedBox(height: 4),
+                        const Text('Horario de recolección', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                        const SizedBox(height: 10),
+                        _OpcionHorario(
+                          titulo: 'Lo antes posible',
+                          subtitulo: 'Listo en 6-9 min · Sucursal Roma Norte',
+                          icono: Icons.bolt,
+                          seleccionado: _loAntesPosible,
+                          onTap: () => setState(() => _loAntesPosible = true),
+                        ),
+                        const SizedBox(height: 8),
+                        _OpcionHorario(
+                          titulo: 'Programar para más tarde',
+                          subtitulo: 'Próximamente',
+                          icono: Icons.schedule,
+                          seleccionado: !_loAntesPosible,
+                          habilitado: false,
+                          onTap: () => setState(() => _loAntesPosible = false),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      width: double.infinity,
-                      child: FilledButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => const CheckoutScreen()),
-                          );
-                        },
-                        child: const Text('Proceder al pago'),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      boxShadow: [BoxShadow(color: Color(0x1A5960A1), blurRadius: 12, offset: Offset(0, -2))],
+                    ),
+                    child: SafeArea(
+                      top: false,
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text('Total', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                              Text(
+                                '\$${carrito.totalPrecio.toStringAsFixed(2)}',
+                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: naviMorado),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          BotonPrimarioNavi(
+                            texto: 'Continuar al pago',
+                            cargando: false,
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => const CheckoutScreen()),
+                              );
+                            },
+                          ),
+                        ],
                       ),
                     ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _OpcionHorario extends StatelessWidget {
+  const _OpcionHorario({
+    required this.titulo,
+    required this.subtitulo,
+    required this.icono,
+    required this.seleccionado,
+    required this.onTap,
+    this.habilitado = true,
+  });
+
+  static const Color naviMorado = Color(0xFF5960A1);
+  static const Color fondoSuave = Color(0xFFEEF0FB);
+
+  final String titulo;
+  final String subtitulo;
+  final IconData icono;
+  final bool seleccionado;
+  final bool habilitado;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Opacity(
+      opacity: habilitado ? 1 : 0.5,
+      child: InkWell(
+        onTap: habilitado ? onTap : null,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: seleccionado ? fondoSuave : Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: seleccionado ? naviMorado : const Color(0xFFE2E8F0)),
+          ),
+          child: Row(
+            children: [
+              Icon(icono, color: naviMorado, size: 20),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(titulo, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                    Text(subtitulo, style: const TextStyle(fontSize: 12, color: Colors.black54)),
                   ],
                 ),
               ),
+              Icon(
+                seleccionado ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+                color: seleccionado ? naviMorado : Colors.black26,
+                size: 20,
+              ),
             ],
-          );
-        },
+          ),
+        ),
       ),
     );
   }
