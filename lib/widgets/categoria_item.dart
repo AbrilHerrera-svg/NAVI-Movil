@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:navi/models/categoria.dart';
 
 class CategoriaItem extends StatelessWidget {
@@ -14,6 +15,8 @@ class CategoriaItem extends StatelessWidget {
   });
 
   static const Color naviMorado = Color(0xFF5960A1);
+  static const Color naviOscuro = Color(0xFF2B2F5E);
+  static const Color grisSuave = Color(0xFFECEEF5);
 
   @override
   Widget build(BuildContext context) {
@@ -21,33 +24,24 @@ class CategoriaItem extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: isSelected ? naviMorado : Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: isSelected ? naviMorado : const Color(0xFFE2E8F0)),
+          color: isSelected ? naviMorado : grisSuave,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: isSelected
+              ? const [BoxShadow(color: Color(0x335960A1), blurRadius: 8, offset: Offset(0, 3))]
+              : const [],
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (isSelected) ...[
-              const SizedBox(
-                width: 6,
-                height: 6,
-                child: DecoratedBox(decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle)),
-              ),
-              const SizedBox(width: 8),
-            ],
-            Text(
-              categoria.nombre,
-              style: TextStyle(
-                color: isSelected ? Colors.white : Colors.black87,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                fontSize: 13,
-              ),
-            ),
-          ],
+        child: Text(
+          categoria.nombre,
+          maxLines: 1,
+          style: GoogleFonts.bricolageGrotesque(
+            color: isSelected ? Colors.white : naviOscuro,
+            fontWeight: FontWeight.w700,
+            fontSize: 13.5,
+          ),
         ),
       ),
     );
